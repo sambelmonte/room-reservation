@@ -1,0 +1,42 @@
+<a href="/logout">Logout</a>
+<h2>RESERVATIONS</h2>
+<a href="/reserve">Reserve a Room</a>
+{{#if message}}
+  <div>
+    {{message}}
+  </div>
+{{/if}}
+{{#if hasNewProject}}
+  <div>
+    Your reservation has been recorded.
+  </div>
+{{/if}}
+{{#if hasReservations}}
+  <table>
+    <thead>
+      <tr>
+        <td>Status</td>
+        <td>Room</td>
+        <td>Start Time</td>
+        <td>End Time</td>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each reservations}}
+        <tr>
+          <td>{{ this.status }} {{#if this.newProject}}NEW!{{/if}}</td>
+          <td>{{ this.name }}</td>
+          <td>{{ this.startTimeString }}</td>
+          <td>{{ this.endTimeString }}</td>
+          <td>
+            {{#if canBeCancelled}}
+              <a href="/reserve/delete/{{this.id}}">Cancel Reservation</a>
+            {{/if}}
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <h5>You have no reservations yet.</h5>
+{{/if}}

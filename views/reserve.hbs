@@ -1,0 +1,29 @@
+<h2>RESERVE A ROOM</h2>
+{{#if message}}
+  <div>
+    {{message}}
+  </div>
+{{/if}}
+<form method="POST" action="/reserve">
+  <div>
+    <label for="roomId">Room</label>
+    <select name="roomId">
+      {{#each rooms}}
+        <option value="{{this.id}}">{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div>
+    <label for="startTime">Start time</label>
+    <input name="startTime" type="datetime-local">
+  </div>
+  <div>
+    <label for="endTime">End time</label>
+    <input name="endTime" type="datetime-local">
+  </div>
+  <div>
+    <label for="peopleCount">Number of people</label>
+    <input name="peopleCount" type="number">
+  </div>
+  <button type="submit">Reserve</button>
+</form>
