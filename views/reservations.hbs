@@ -6,11 +6,6 @@
     {{message}}
   </div>
 {{/if}}
-{{#if hasNewProject}}
-  <div>
-    Your reservation has been recorded.
-  </div>
-{{/if}}
 {{#if hasReservations}}
   <table>
     <thead>
@@ -24,7 +19,7 @@
     <tbody>
       {{#each reservations}}
         <tr>
-          <td>{{ this.status }} {{#if this.newProject}}NEW!{{/if}}</td>
+          <td>{{ this.status }} {{#if this.newReservation}}NEW!{{/if}}</td>
           <td>{{ this.name }}</td>
           <td>{{ this.startTimeString }}</td>
           <td>{{ this.endTimeString }}</td>

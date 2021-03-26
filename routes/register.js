@@ -46,6 +46,7 @@ router.post('/', (req, res) => {
         });
       } else if (response.statusCode === 200) {
         res.cookie('AuthToken', body.key);
+        req.session.message = 'You have successfully registered. You may reserve a room now.';
         res.redirect('/');
       } else {
         res.render('register', {

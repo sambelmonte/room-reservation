@@ -14,12 +14,17 @@ router.get('/delete/:id', (req, res) => {
     }
   }, (error, response, body) => {
     if (error) {
+      req.session.message = 'There is a problem cancelling the reservation. Please try again.';
       res.redirect('/');
     } else if (response.statusCode === 200) {
+      req.session.message = 'The reservation is successfully cancelled.';
+      req.session.cancelledReservation = id;
       res.redirect('/');
     } else if (response.statusCode === 404) {
+      req.session.message = 'The reservation you are trying to cancel does not exist.';
       res.redirect('/');
     } else {
+      req.session.message = 'There is a problem cancelling the reservation. Please try again.';
       res.redirect('/');
     }
   });
@@ -34,24 +39,23 @@ router.get('/', (req, res) => {
     }
   }, (error, response, body) => {
     if (error) {
-      res.render('reserve', {
-        message: 'There is a problem loading the rooms. Please try again.'
-      });
+      req.session.message = 'There is a problem loading the rooms. Please try again';
+      res.redirect('/reserve');
     } else if (response.statusCode === 200) {
       const { rooms } = JSON.parse(body);
       res.render('reserve', {
-        rooms
+        rooms,
+        message: req.session.message
       });
+      delete req.session.message;
     } else {
-      res.render('reserve', {
-        message: 'There is a problem loading the rooms. Please try again.'
-      });
+      req.session.message = 'There is a problem loading the rooms. Please try again';
+      res.redirect('/reserve');
     }
   });
 });
 
 router.post('/', (req, res) => {
-  console.log(req.body)
   const errors = [];
   if (!req.body.roomId) {
     errors.push('Room is required.');
@@ -67,9 +71,8 @@ router.post('/', (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render('reserve', {
-      message: errors.join(' ')
-    });
+    req.session.message = errors.join('');
+    res.redirect('/reserve');
   } else {
     const { roomId, startTime, endTime, peopleCount } = req.body;
 
@@ -87,19 +90,18 @@ router.post('/', (req, res) => {
       }
     }, (error, response, body) => {
       if (error) {
-        res.render('reserve', {
-          message: 'There is a problem with your request. Please try again.'
-        });
+        req.session.message = 'There is a problem with your request. Please try again';
+        res.redirect('/reserve');
       } else if (response.statusCode === 200) {
-        res.redirect(`/?newProject=${body.reservationId}`);
+        req.session.message = 'Your reservation is successfully recorded.';
+        req.session.newReservation = body.reservationId;
+        res.redirect('/');
       } else if (response.statusCode === 400) {
-        res.render('reserve', {
-          message: body.message
-        });
+        req.session.message = body.message;
+        res.redirect('/reserve');
       } else {
-        res.render('reserve', {
-          message: 'There is a problem with your request. Please try again.'
-        });
+        req.session.message = 'There is a problem with your request. Please try again';
+        res.redirect('/reserve');
       }
     });
   }

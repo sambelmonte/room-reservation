@@ -16,10 +16,8 @@ function homeAuth(req, res, next) {
   } else {
     const { expiry } = decryptKey(auth);
     if (expiry < Date.now()) {
-      res.status(400)
-        .json({
-          'message': 'Access expired.'
-        });
+      res.clearCookie('AuthToken');
+      res.redirect('/');
     }
 
     next();

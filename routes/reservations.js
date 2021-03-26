@@ -19,8 +19,12 @@ router.get('/', (req, res) => {
       const { reservations } = JSON.parse(body);
       res.render('reservations', {
         hasReservations: reservations.length > 0,
-        ...formatReservations(reservations, Number(req.query.newProject))
+        message: req.session.message,
+        ...formatReservations(reservations, Number(req.session.newReservation || req.session.cancelledReservation))
       });
+      delete req.session.message;
+      delete req.session.newReservation;
+      delete req.session.cancelledReservation;
     } else {
       res.render('reservations', {
         message: 'There is a problem loading the table. Please try again.'
@@ -29,17 +33,19 @@ router.get('/', (req, res) => {
   });
 });
 
-function formatReservations(reservations, newProject, deleted) {
+function formatReservations(reservations, newReservation) {
   const newReservations = [];
-  let hasNewProject = false;
+  let hasNewReservation = false;
   if (reservations.length === 0) {
     return newReservations;
   }
 
   reservations.forEach((reservation) => {
-    hasNewProject = hasNewProject || reservation.id === newProject;
+    hasNewReservation = hasNewReservation || reservation.id === newReservation;
     const status = reservation.cancelled
       ? 'CANCELLED'
+      : Date.now() > (reservation.startTime * 1000) && Date.now() < (reservation.endTime * 1000)
+      ? 'ONGOING'
       : Date.now() > (reservation.startTime * 1000)
       ? 'DONE'
       : 'UPCOMING';
@@ -48,13 +54,13 @@ function formatReservations(reservations, newProject, deleted) {
       status,
       startTimeString: new Date(reservation.startTime * 1000).toLocaleString(),
       endTimeString: new Date(reservation.endTime * 1000).toLocaleString(),
-      newProject: reservation.id === newProject,
+      newReservation: reservation.id === newReservation,
       canBeCancelled: status === 'UPCOMING'
     });
   });
   return {
     reservations: newReservations,
-    hasNewProject
+    hasNewReservation
   };
 }
 
