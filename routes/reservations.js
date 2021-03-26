@@ -1,9 +1,13 @@
 const { Router } = require('express');
 const request = require('request');
 const { directory } = require('../config/api.json');
+const { decryptKey } = require('../tools/encrypt');
+const log = require('../tools/log');
 const router = Router();
 
 router.get('/', (req, res) => {
+  const { username } = decryptKey(req.cookies['AuthToken']);
+
   request({
     url: `${directory}/reserve`,
     method: 'GET',
@@ -12,6 +16,7 @@ router.get('/', (req, res) => {
     }
   }, (error, response, body) => {
     if (error) {
+      log('GET /', 'request', username, error);
       res.render('reservations', {
         message: 'There is a problem loading the table. Please try again.'
       });
@@ -26,6 +31,7 @@ router.get('/', (req, res) => {
       delete req.session.newReservation;
       delete req.session.cancelledReservation;
     } else {
+      log('GET /', 'request', username, response);
       res.render('reservations', {
         message: 'There is a problem loading the table. Please try again.'
       });

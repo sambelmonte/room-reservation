@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const request = require('request');
 const { directory } = require('../config/api.json');
+const log = require('../tools/log');
 const router = Router();
 
 router.get('/', (req, res) => {
@@ -41,6 +42,7 @@ router.post('/', (req, res) => {
       }
     }, (error, response, body) => {
       if (error) {
+        log('POST /register', 'request', req.body.username, error);
         res.render('register', {
           message: 'There is a problem with your request. Please try again.'
         });
@@ -49,6 +51,7 @@ router.post('/', (req, res) => {
         req.session.message = 'You have successfully registered. You may reserve a room now.';
         res.redirect('/');
       } else {
+        log('POST /register', 'request', req.body.username, response);
         res.render('register', {
           message: 'There is a problem with your request. Please try again.'
         });

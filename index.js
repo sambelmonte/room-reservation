@@ -3,6 +3,7 @@ const exphbs = require('express-handlebars');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const port = 3000;
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,4 +24,6 @@ app.set('view engine', 'hbs');
 
 app.use('/', require('./routes/index'));
 
-app.listen(3000);
+app.listen(port, () => {
+  console.log(`Frontend running at port ${port}`);
+});

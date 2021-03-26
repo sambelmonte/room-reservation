@@ -1,9 +1,12 @@
 const { Router } = require('express');
 const request = require('request');
 const { directory } = require('../config/api.json');
+const { decryptKey } = require('../tools/encrypt');
+const log = require('../tools/log');
 const router = Router();
 
 router.get('/delete/:id', (req, res) => {
+  const { username } = decryptKey(req.cookies['AuthToken']);
   const id = req.params.id;
 
   request({
@@ -14,6 +17,7 @@ router.get('/delete/:id', (req, res) => {
     }
   }, (error, response, body) => {
     if (error) {
+      log('GET /reserve/delete', 'request', username, error);
       req.session.message = 'There is a problem cancelling the reservation. Please try again.';
       res.redirect('/');
     } else if (response.statusCode === 200) {
@@ -24,6 +28,7 @@ router.get('/delete/:id', (req, res) => {
       req.session.message = 'The reservation you are trying to cancel does not exist.';
       res.redirect('/');
     } else {
+      log('GET /reserve/delete', 'request', username, response);
       req.session.message = 'There is a problem cancelling the reservation. Please try again.';
       res.redirect('/');
     }
@@ -31,6 +36,8 @@ router.get('/delete/:id', (req, res) => {
 });
 
 router.get('/', (req, res) => {
+  const { username } = decryptKey(req.cookies['AuthToken']);
+
   request({
     url: `${directory}/room`,
     method: 'GET',
@@ -39,6 +46,7 @@ router.get('/', (req, res) => {
     }
   }, (error, response, body) => {
     if (error) {
+      log('GET /reserve', 'request', username, error);
       req.session.message = 'There is a problem loading the rooms. Please try again';
       res.redirect('/reserve');
     } else if (response.statusCode === 200) {
@@ -49,6 +57,7 @@ router.get('/', (req, res) => {
       });
       delete req.session.message;
     } else {
+      log('GET /reserve', 'request', username, response);
       req.session.message = 'There is a problem loading the rooms. Please try again';
       res.redirect('/reserve');
     }
@@ -56,6 +65,8 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+  const { username } = decryptKey(req.cookies['AuthToken']);
+
   const errors = [];
   if (!req.body.roomId) {
     errors.push('Room is required.');
@@ -90,6 +101,7 @@ router.post('/', (req, res) => {
       }
     }, (error, response, body) => {
       if (error) {
+        log('POST /reserve', 'request', username, error);
         req.session.message = 'There is a problem with your request. Please try again';
         res.redirect('/reserve');
       } else if (response.statusCode === 200) {
@@ -100,6 +112,7 @@ router.post('/', (req, res) => {
         req.session.message = body.message;
         res.redirect('/reserve');
       } else {
+        log('POST /reserve', 'request', username, response);
         req.session.message = 'There is a problem with your request. Please try again';
         res.redirect('/reserve');
       }
